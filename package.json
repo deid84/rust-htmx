@@ -1,0 +1,13 @@
+{
+  "name": "rust-htmx",
+  "version": "0.1.0",
+  "scripts": {
+    "format": "prettier --write --ignore-unknown ."
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.4.1"
+  }
+}
