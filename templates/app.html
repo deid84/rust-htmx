@@ -4,5 +4,12 @@
 {% block title %}App{% endblock %}
 
 {% block content %}
-<h1 class="text-indigo-500">Greetings from the Embedded Web Server!</h1>
+<div class="inline-flex flex-row space-x-2">
+    <h1 class="text-indigo-500">Greetings from the Embedded Web Server!</h1>
+    <a
+        href="/another-page"
+        class="text-red-500 underline hover:text-red-300"
+        >Another page</a
+    >
+</div>
 {% endblock %}
