@@ -1,14 +1,18 @@
+use std::sync::Arc;
+
 use anyhow::Context;
 use askama::Template;
 use axum::{
-    http::StatusCode,
-    response::{Html, IntoResponse, Response},
-    routing::get,
-    Router,
+    extract::State, http::StatusCode, response::{Html, IntoResponse, Response}, routing::{get, post}, Form, Router
 };
+use std::sync::Mutex;
 use tower_http::services::ServeDir;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+struct AppState {
+    todos: Mutex<Vec<String>>,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -26,6 +30,8 @@ async fn main() -> anyhow::Result<()> {
     let router = Router::new()
         .route("/", get(hello))
         .route("/another-page", get(another_page))
+        .route("/api", get(api_sample))
+        .route("/todos", post(add_todo))
         .nest_service(
             "/assets",
             ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
@@ -40,6 +46,10 @@ async fn main() -> anyhow::Result<()> {
     axum::serve(listener, router).await.unwrap();
 
     Ok(())
+}
+
+async fn api_sample() -> &'static str {
+    "Hello from Axum backend!"
 }
 
 async fn hello() -> impl IntoResponse {
@@ -59,6 +69,26 @@ struct HelloTemplate;
 #[derive(Template)]
 #[template(path = "another-page.html")]
 struct AnotherPageTemplate;
+
+#[derive(Template)]
+#[template(path = "todo-list.html")]
+struct TodoList {
+    todos: Vec<String>,
+}
+
+async fn add_todo(
+    State(state): State<Arc<AppState>>,
+    Form(todo): Form<TodoList>,
+) -> impl IntoResponse {
+    let mut lock = state.todos.lock().unwrap();
+    lock.push(todo.todo);
+
+    let template = TodoList {
+        todos: lock.clone(),
+    };
+
+    HtmlTemplate(template)
+}
 
 /// A wrapper type that we'll use to encapsulate HTML parsed by askama into valid HTML for axum to serve.
 struct HtmlTemplate<T>(T);
