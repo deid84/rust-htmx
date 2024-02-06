@@ -1,9 +1,8 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <link href="/assets/main.css" rel="stylesheet" />
-    </head>
-    <body>
-        <h1>Greetings from the Embedded Web Server!</h1>
-    </body>
-</html>
+<!-- prettier-ignore -->
+{% extends "base.html" %}
+
+{% block title %}App{% endblock %}
+
+{% block content %}
+<h1 class="text-indigo-500">Greetings from the Embedded Web Server!</h1>
+{% endblock %}

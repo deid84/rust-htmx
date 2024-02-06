@@ -6,6 +6,7 @@ use axum::{
     routing::get,
     Router,
 };
+use tower_http::services::ServeDir;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -20,8 +21,15 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     info!("router init...");
-
-    let router = Router::new().route("/", get(hello));
+    // Add assets to router
+    let assets_path = std::env::current_dir().unwrap();
+    let router = Router::new()
+        .route("/", get(hello))
+        .route("/another-page", get(another_page))
+        .nest_service(
+            "/assets",
+            ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
+        );
     let port = 8086_u16;
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
         .await
@@ -39,9 +47,18 @@ async fn hello() -> impl IntoResponse {
     HtmlTemplate(template)
 }
 
+async fn another_page() -> impl IntoResponse {
+    let template = AnotherPageTemplate {};
+    HtmlTemplate(template)
+}
+
 #[derive(Template)]
 #[template(path = "app.html")]
 struct HelloTemplate;
+
+#[derive(Template)]
+#[template(path = "another-page.html")]
+struct AnotherPageTemplate;
 
 /// A wrapper type that we'll use to encapsulate HTML parsed by askama into valid HTML for axum to serve.
 struct HtmlTemplate<T>(T);
