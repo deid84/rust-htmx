@@ -710,6 +710,7 @@ dependencies = [
  "anyhow",
  "askama",
  "axum",
+ "serde",
  "tokio",
  "tower",
  "tower-http",

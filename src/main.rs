@@ -1,10 +1,15 @@
 use std::sync::Arc;
 
-use anyhow::Context;
 use askama::Template;
 use axum::{
-    extract::State, http::StatusCode, response::{Html, IntoResponse, Response}, routing::{get, post}, Form, Router
+    extract::State,
+    http::StatusCode,
+    response::{Html, IntoResponse, Response},
+    routing::{get, post},
+    Form, Router,
 };
+use serde::Deserialize;
+
 use std::sync::Mutex;
 use tower_http::services::ServeDir;
 use tracing::info;
@@ -24,6 +29,10 @@ async fn main() -> anyhow::Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let app_state = Arc::new(AppState {
+        todos: Mutex::new(vec![]),
+    });
+
     info!("router init...");
     // Add assets to router
     let assets_path = std::env::current_dir().unwrap();
@@ -35,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
         .nest_service(
             "/assets",
             ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
-        );
+        ).with_state(app_state);
     let port = 8086_u16;
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
         .await
@@ -76,12 +85,17 @@ struct TodoList {
     todos: Vec<String>,
 }
 
+#[derive(Deserialize)]
+struct FormData {
+    todo: String,
+}
+
 async fn add_todo(
     State(state): State<Arc<AppState>>,
-    Form(todo): Form<TodoList>,
+    Form(form_data): Form<FormData>,
 ) -> impl IntoResponse {
     let mut lock = state.todos.lock().unwrap();
-    lock.push(todo.todo);
+    lock.push(form_data.todo);
 
     let template = TodoList {
         todos: lock.clone(),
