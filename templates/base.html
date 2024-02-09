@@ -1,18 +1,18 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <link href="/assets/main.css" rel="stylesheet" />
-        <script src="/assets/htmx.min.js"></script>
-        <!-- Allow any inheriting page to set it's own title -->
-        <title>{% block title %}{{ title }}{% endblock %}</title>
+  <head>
+    <link href="/assets/main.css" rel="stylesheet" />
+    <script src="/assets/htmx.min.js"></script>
+    <!-- Allow any inheriting page to set it's own title -->
+    <title>{% block title %}{{ title }}{% endblock %}</title>
 
-        <!-- Allow any inheriting page to extend head with additional assets -->
-        {% block head %}{% endblock %}
-    </head>
-    <body class="bg-gray-900">
-        <div id="content" class="m-5">
-            <!-- Inheriting pages will have their content rendered here, similar to app root in React, Angular, etc. -->
-            {% block content %}{% endblock %}
-        </div>
-    </body>
+    <!-- Allow any inheriting page to extend head with additional assets -->
+    {% block head %}{% endblock %}
+  </head>
+  <body class="bg-gray-900">
+    <div id="content" class="m-5">
+      <!-- Inheriting pages will have their content rendered here, similar to app root in React, Angular, etc. -->
+      {% block content %}{% endblock %}
+    </div>
+  </body>
 </html>
